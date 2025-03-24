@@ -3,6 +3,7 @@ import { AppSourcedata } from "../config/database";
 import { User } from "../models/user";
 import { validate } from "class-validator";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const UserRepositry = AppSourcedata.getRepository(User);
 
@@ -34,7 +35,7 @@ export const handleRegistration = async (
       });
     }
 
-    const saltNumber = 2;
+    const saltNumber = 10;
     const hashedPassword = await bcrypt.hash(password, saltNumber);
 
     user.password = hashedPassword;
@@ -48,6 +49,39 @@ export const handleRegistration = async (
   }
 };
 
-// export const handleLogin = async (req:Request,res:Response):Promise<any> =>{
+export const handleLogin = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { email, password } = req.body;
 
-// }
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+
+    const userFound = await UserRepositry.findOne({ where: { email } });
+    if (!userFound) {
+      return res.status(401).json({ message: "Invalid Credentials" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, userFound.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign({ id: userFound.id }, "Priyan@45", {
+      expiresIn: "1d",
+    });
+
+    return res.json({
+      message: "Login Successfully",
+      token,
+      name: userFound.name,
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: err });
+  }
+};
