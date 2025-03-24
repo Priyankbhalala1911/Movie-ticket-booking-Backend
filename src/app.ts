@@ -1,8 +1,12 @@
-import express, { Request, Response } from "express";
+import express from "express";
+import { initialDatabase } from "./config/database";
+import UserRouter from "./routes/user";
+import cors from "cors";
 const app = express();
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("welcome to my app");
-});
+app.use(cors());
+app.use(express.json());
+app.use("/", UserRouter);
 
-app.listen(3000, () => console.log("server is running on port 3000"));
+initialDatabase();
+app.listen(8000, () => console.log("server is running on port 8000"));
