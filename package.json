@@ -12,10 +12,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.17",
     "backend": "file:",
-    "express": "^4.21.2"
+    "bcryptjs": "^3.0.2",
+    "class-validator": "^0.14.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "pg": "^8.14.1",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.21"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/express": "^5.0.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
