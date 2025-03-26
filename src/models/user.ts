@@ -1,5 +1,10 @@
-import { IsEmail, IsNotEmpty, Length, Matches } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { IsNotEmpty, Length, Matches } from "class-validator";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
 @Entity()
 export class User {
@@ -25,4 +30,7 @@ export class User {
   })
   @IsNotEmpty({ message: "Password is required!" })
   password!: string;
+
+  @CreateDateColumn({ type: "timestamp" })
+  created_at!: Date;
 }
