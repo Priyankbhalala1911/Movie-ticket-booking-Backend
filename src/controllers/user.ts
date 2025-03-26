@@ -27,7 +27,7 @@ export const handleRegistration = async (
     const errors = await validate(user);
     if (errors.length > 0) {
       return res.status(400).json({
-        message: "validation failed..",
+        message: "Validation failed",
         errors: errors.map((err) => ({
           field: err.property,
           message: Object.values(err.constraints!)[0],
@@ -35,17 +35,13 @@ export const handleRegistration = async (
       });
     }
 
-    const saltNumber = 10;
-    const hashedPassword = await bcrypt.hash(password, saltNumber);
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
 
     const result = await UserRepositry.save(user);
-    return res
-      .status(200)
-      .json({ message: "Registration Successfullly", result });
+    return res.status(201).json({ message: "Registration Successful", result });
   } catch (error: any) {
-    return res.status(400).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -72,16 +68,32 @@ export const handleLogin = async (
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: userFound.id }, "Priyan@45", {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: userFound.id },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: "1d",
+      }
+    );
 
-    return res.json({
-      message: "Login Successfully",
-      token,
-      name: userFound.name,
-    });
+    return res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .json({ message: "Login Successfully", name: userFound.name });
   } catch (err: any) {
-    res.status(400).json({ error: err });
+    res.status(500).json({ error: err.message });
   }
+};
+
+export const handleLogout = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  res.clearCookie("token");
+
+  return res.json({ message: "Logged out successfully" });
 };
