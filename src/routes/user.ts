@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  handlegetUser,
   handleLogin,
   handleLogout,
   handleRegistration,
@@ -10,6 +11,7 @@ const router: Router = Router();
 router
   .post("/register", handleRegistration)
   .post("/login", handleLogin)
+  .get("/me", handlegetUser)
   .post("/logout", handleLogout);
 
 export default router;
