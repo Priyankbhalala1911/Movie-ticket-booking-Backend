@@ -89,6 +89,24 @@ export const handleLogin = async (
   }
 };
 
+export const handlegetUser = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+      id: string;
+      name: string;
+    };
+    return res.json(decoded.name);
+  } catch (error) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+};
+
 export const handleLogout = async (
   req: Request,
   res: Response
