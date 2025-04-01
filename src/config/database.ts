@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "../models/user";
 import "dotenv/config";
-import { City, Movie, Screen, Theatre } from "../models/movie";
+import { City, Day, Movie, Screen, Theatre } from "../models/movie";
 import { AddDStaticData } from "../utils/AddMovie";
 
 export const AppSourcedata = new DataSource({
@@ -10,7 +10,7 @@ export const AppSourcedata = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: true,
   logging: false,
-  entities: [User, Movie, City, Theatre, Screen],
+  entities: [User, Movie, City, Theatre, Screen, Day],
   schema: "public",
   ssl: {
     rejectUnauthorized: false,
