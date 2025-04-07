@@ -3,8 +3,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { SeatBooking } from "./seatBooking";
 
 @Entity()
 export class User {
@@ -33,4 +35,10 @@ export class User {
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
+
+  @OneToMany(() => SeatBooking, (booking) => booking.user, {
+    cascade: true,
+    eager: true,
+  })
+  bookings!: SeatBooking[];
 }
