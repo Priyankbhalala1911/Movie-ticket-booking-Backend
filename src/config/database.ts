@@ -3,9 +3,9 @@ import { DataSource } from "typeorm";
 import { User } from "../models/user";
 import "dotenv/config";
 import { City, Day, Movie, Screen, ShowTime, Theatre } from "../models/movie";
-import { AddDStaticData } from "../utils/AddMovie";
+import { AddDStaticData } from "../utils/Addedmovie/AddMovie";
 import { MovieNews } from "../models/movieNews";
-import { AddMovieNews } from "../utils/AddMovieNews";
+import { AddMovieNews } from "../utils/Addedmovie/AddMovieNews";
 import { Seat } from "../models/seat";
 import { SeatBooking } from "../models/seatBooking";
 
