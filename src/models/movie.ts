@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Seat } from "./seat";
 
 @Entity()
 export class Movie {
@@ -109,15 +110,33 @@ export class Screen {
   @Column()
   type!: string;
 
-  @Column()
-  price!: number;
-
-  @Column("text", { array: true })
-  slots!: string[];
+  @OneToMany(() => ShowTime, (showtime) => showtime.screen, {
+    cascade: true,
+    eager: true,
+  })
+  showtime!: ShowTime[];
 
   @ManyToOne(() => Theatre, (theatre) => theatre.screens, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "theatre_id" })
   theatre!: Theatre;
+}
+
+@Entity()
+export class ShowTime {
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
+
+  @Column()
+  Time!: string;
+
+  @Column()
+  Price!: number;
+
+  @ManyToOne(() => Screen, (screen) => screen.showtime, { onDelete: "CASCADE" })
+  screen!: Screen;
+
+  @OneToMany(() => Seat, (seat) => seat.showTime, { cascade: true })
+  seats!: Seat[];
 }
