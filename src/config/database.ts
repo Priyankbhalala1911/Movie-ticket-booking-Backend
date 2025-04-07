@@ -8,6 +8,8 @@ import { MovieNews } from "../models/movieNews";
 import { AddMovieNews } from "../utils/Addedmovie/AddMovieNews";
 import { Seat } from "../models/seat";
 import { SeatBooking } from "../models/seatBooking";
+import { ComingMovies } from "../models/comingMovies";
+import { AddComingMovies } from "../utils/Addedmovie/ComingMovies";
 
 export const AppSourcedata = new DataSource({
   type: "postgres",
@@ -25,6 +27,7 @@ export const AppSourcedata = new DataSource({
     MovieNews,
     Seat,
     SeatBooking,
+    ComingMovies,
   ],
   schema: "public",
   ssl: {
@@ -37,6 +40,7 @@ export const initialDatabase = async () => {
     await AppSourcedata.initialize();
     // await AddDStaticData();
     // await AddMovieNews();
+    // await AddComingMovies();
     console.log("Database connection established successfully.");
   } catch (error) {
     console.log("Error connecting to the database", error);
