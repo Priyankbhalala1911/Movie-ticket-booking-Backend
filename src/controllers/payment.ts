@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { SeatBooking } from "../models/seatBooking";
 import { AppSourcedata } from "../config/database";
 import { Movie } from "../models/movie";
+import { Seat } from "../models/seat";
 
 export const PaymentOrder = async (
   req: Request,
@@ -62,6 +63,12 @@ export const PaymentVerify = async (
       if (!movie) {
         return res.status(404).json({ message: "Movie not found" });
       }
+
+      selectedMovie.seat_number.map(async (seat: any) => {
+        await AppSourcedata.getRepository(Seat).update(seat.id, {
+          status: "confirmed",
+        });
+      });
 
       const selectedSeat = selectedMovie.seat_number.map(
         (seat: any) => seat.seat_number
