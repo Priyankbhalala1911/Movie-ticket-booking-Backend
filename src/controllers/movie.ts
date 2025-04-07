@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { AppSourcedata } from "../config/database";
 import { City, Movie } from "../models/movie";
+import { Seat } from "../models/seat";
 
 export const handleMovieApi = async (
   req: Request,
   res: Response
 ): Promise<any> => {
   const moviedata = await AppSourcedata.getRepository(Movie).find();
-
   return res.json(moviedata);
 };
 
