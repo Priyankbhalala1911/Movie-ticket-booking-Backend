@@ -6,6 +6,7 @@ import MovieNewsRouter from "./routes/movieNews";
 import ScreenRouter from "./routes/screen";
 import PaymentRouter from "./routes/payment";
 import BookingRouter from "./routes/seatBooking";
+import ComingMovie from "./routes/comingMovies";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import "dotenv/config";
@@ -25,6 +26,7 @@ app.use("/news", MovieNewsRouter);
 app.use("/screen", ScreenRouter);
 app.use("/payment", PaymentRouter);
 app.use("/api", BookingRouter);
+app.use("/coming", ComingMovie);
 
 initialDatabase();
 app.listen(process.env.PORT || 8100, () =>
