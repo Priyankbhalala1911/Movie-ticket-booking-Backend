@@ -33,9 +33,14 @@ export class User {
   @IsNotEmpty({ message: "Password is required!" })
   password!: string;
 
+  @Column({ default: null })
+  profile_image!: string;
+
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
 
+  @CreateDateColumn({ type: "timestamp" })
+  updated_at!: Date;
   @OneToMany(() => SeatBooking, (booking) => booking.user, {
     cascade: true,
     eager: true,
