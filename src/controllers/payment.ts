@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { RazorPatInstance } from "../utils/razorpayInstance";
+import { RazorPatInstance } from "../lib/razorpayInstance";
 import crypto from "crypto";
 import { SeatBooking } from "../models/seatBooking";
 import { AppSourcedata } from "../config/database";
@@ -75,6 +75,7 @@ export const PaymentVerify = async (
       );
 
       const seatbooking = new SeatBooking();
+
       seatbooking.movie_title = movie.title;
       seatbooking.movie_poster = movie.movie_poster;
       seatbooking.location = selectedMovie.location;
