@@ -21,7 +21,7 @@ export const selecteScreen = async (
       const rowB = b.seat_number.charAt(0);
 
       if (rowA !== rowB) {
-        return rowA.localeCompare(rowB);
+        return rowB.localeCompare(rowA);
       }
       const numA = parseInt(a.seat_number.slice(1), 10);
       const numB = parseInt(b.seat_number.slice(1), 10);
