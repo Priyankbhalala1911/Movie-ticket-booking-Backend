@@ -91,7 +91,9 @@ export const PaymentVerify = async (
       seatbooking.user = { id: userId } as any;
 
       await AppSourcedata.getRepository(SeatBooking).save(seatbooking);
-      res.status(200).json({ message: "Seat booked successfully" });
+      res
+        .status(200)
+        .json({ message: "Seat booked successfully", id: seatbooking.id });
     }
   } catch (err) {
     console.log(err);
