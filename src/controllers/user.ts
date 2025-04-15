@@ -83,7 +83,7 @@ export const handleLogin = async (
         sameSite: "strict",
         maxAge: 24 * 60 * 60 * 1000,
       })
-      .json({ message: "Login Successfully", name: userFound.name });
+      .json({ message: "Login Successfully", name: userFound.profile_image });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
