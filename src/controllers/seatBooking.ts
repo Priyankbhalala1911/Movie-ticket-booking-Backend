@@ -13,8 +13,8 @@ export const SeatBookingwithPayment = async (
     const data = await AppSourcedata.getRepository(SeatBooking).find({
       where: { user: { id: userId } },
     });
-    if (!data)
-      return res.status(500).json({ message: "No ticket Booked", userId });
+    if (!data || data.length === 0)
+      return res.status(500).json({ message: "No ticket Booked yet", userId });
     res.status(200).json(data);
   } catch (error) {
     console.error("Booking error:", error);
