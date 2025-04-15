@@ -15,7 +15,7 @@ export const handleMovieById = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { city, day, chain } = req.query;
+  const { city, day, chain, theater, screenType } = req.query;
 
   const movieDataById = await AppSourcedata.getRepository(Movie).findOne({
     where: { movie_id: req.params.id },
@@ -28,7 +28,7 @@ export const handleMovieById = async (
   let filteredCities = movieDataById.cities;
 
   if (city) {
-    filteredCities = movieDataById.cities.filter(
+    filteredCities = filteredCities.filter(
       (c) => c.name.toLowerCase() === city.toString().toLowerCase()
     );
 
@@ -69,6 +69,56 @@ export const handleMovieById = async (
       return res
         .status(404)
         .json({ message: "No Theaters available for this chain" });
+    }
+  }
+
+  if (theater) {
+    filteredCities = filteredCities
+      .map((c) => ({
+        ...c,
+        days: c.days
+          .map((d) => ({
+            ...d,
+            theatres: d.theatres.filter((t) =>
+              t.name.toLowerCase().startsWith(theater.toString().toLowerCase())
+            ),
+          }))
+          .filter((d) => d.theatres.length > 0),
+      }))
+      .filter((c) => c.days.length > 0);
+
+    if (filteredCities.length === 0) {
+      return res
+        .status(404)
+        .json({ message: `No theaters matching "${theater}" found` });
+    }
+  }
+
+  if (screenType) {
+    filteredCities = filteredCities
+      .map((c) => ({
+        ...c,
+        days: c.days
+          .map((d) => ({
+            ...d,
+            theatres: d.theatres
+              .map((t) => ({
+                ...t,
+                screens: t.screens.filter(
+                  (s) =>
+                    s.type.toLowerCase() === screenType.toString().toLowerCase()
+                ),
+              }))
+              .filter((t) => t.screens.length > 0),
+          }))
+          .filter((d) => d.theatres.length > 0),
+      }))
+      .filter((c) => c.days.length > 0);
+
+    if (filteredCities.length === 0) {
+      return res.status(404).json({
+        message: `No shows available for screen type "${screenType}"`,
+      });
     }
   }
 
