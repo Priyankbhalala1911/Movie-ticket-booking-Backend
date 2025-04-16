@@ -11,6 +11,26 @@ export const handleMovieApi = async (
   return res.json(moviedata);
 };
 
+export const getMovieById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const movieData = await AppSourcedata.getRepository(Movie).findOne({
+      where: { movie_id: req.params.id },
+    });
+
+    if (!movieData) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
+    return res.status(200).json(movieData);
+  } catch (error) {
+    console.error("Error fetching movie:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const handleMovieById = async (
   req: Request,
   res: Response
