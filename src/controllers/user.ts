@@ -80,7 +80,8 @@ export const handleLogin = async (
       .cookie("token", token, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "none",
+        path: "/",
         maxAge: 24 * 60 * 60 * 1000,
       })
       .json({ message: "Login Successfully", name: userFound.profile_image });
