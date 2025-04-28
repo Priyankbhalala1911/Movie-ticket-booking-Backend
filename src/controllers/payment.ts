@@ -11,6 +11,8 @@ export const PaymentOrder = async (
   res: Response
 ): Promise<any> => {
   const { amount } = req.body;
+  const userId = (req as any).user?.id;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
   try {
     const razorpayInstane = RazorPatInstance();
     const option = {

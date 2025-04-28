@@ -15,7 +15,8 @@ export const UserAuth = async (
 ): Promise<any> => {
   try {
     const token = req.cookies.token;
-    if (!token) return res.status(401).json({ error: "Unauthorized" });
+    console.log("token:   ", token);
+    if (!token) return res.status(401).json({ error: "user Unauthorized" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
       id: string;
