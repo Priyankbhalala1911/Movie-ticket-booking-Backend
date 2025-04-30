@@ -1,20 +1,29 @@
 import { Request, Response } from "express";
-import { AppSourcedata } from "../config/database";
-import { SeatBooking } from "../models/seatBooking";
+import { seatBookingTimeRepositry } from "../utils/service";
 
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+  };
+}
 export const SeatBookingwithPayment = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
-    const userId = (req as any).user?.id;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
 
-    const data = await AppSourcedata.getRepository(SeatBooking).find({
-      where: { user: { id: userId } },
+    const data = await seatBookingTimeRepositry.find({
+      where: { user: { id: userId.toString() } },
     });
-    if (!data || data.length === 0)
-      return res.status(500).json({ message: "No ticket Booked yet", userId });
+    if (!data || data.length === 0) {
+      res.status(500).json({ message: "No ticket Booked yet", userId });
+      return;
+    }
     res.status(200).json(data);
   } catch (error) {
     console.error("Booking error:", error);
@@ -25,13 +34,16 @@ export const SeatBookingwithPayment = async (
 export const SeatBookingwithID = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
-    const ticket = await AppSourcedata.getRepository(SeatBooking).findOne({
+    const ticket = await seatBookingTimeRepositry.findOne({
       where: { id: req.params.id },
     });
 
-    if (!ticket) return res.status(500).json({ message: "Ticket not found" });
+    if (!ticket) {
+      res.status(500).json({ message: "Ticket not found" });
+      return;
+    }
     res.status(200).json(ticket);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", error });

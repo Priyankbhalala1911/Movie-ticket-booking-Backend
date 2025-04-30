@@ -1,48 +1,49 @@
 import { Request, Response } from "express";
-import { AppSourcedata } from "../config/database";
-import { City, Movie } from "../models/movie";
-import { Seat } from "../models/seat";
+import { movieRepositry } from "../utils/service";
 
 export const handleMovieApi = async (
   req: Request,
   res: Response
-): Promise<any> => {
-  const moviedata = await AppSourcedata.getRepository(Movie).find();
-  return res.json(moviedata);
+): Promise<void> => {
+  const moviedata = await movieRepositry.find();
+  res.json(moviedata);
+  return;
 };
 
 export const getMovieById = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
-    const movieData = await AppSourcedata.getRepository(Movie).findOne({
+    const movieData = await movieRepositry.findOne({
       where: { movie_id: req.params.id },
     });
 
     if (!movieData) {
-      return res.status(404).json({ message: "Movie not found" });
+      res.status(404).json({ message: "Movie not found" });
+      return;
     }
 
-    return res.status(200).json(movieData);
+    res.status(200).json(movieData);
   } catch (error) {
     console.error("Error fetching movie:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 export const handleMovieById = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   const { city, day, chain, theater, screenType } = req.query;
 
-  const movieDataById = await AppSourcedata.getRepository(Movie).findOne({
+  const movieDataById = await movieRepositry.findOne({
     where: { movie_id: req.params.id },
   });
 
   if (!movieDataById) {
-    return res.status(404).json({ message: "Movie not found" });
+    res.status(404).json({ message: "Movie not found" });
+    return;
   }
 
   let filteredCities = movieDataById.cities;
@@ -53,7 +54,8 @@ export const handleMovieById = async (
     );
 
     if (filteredCities.length === 0) {
-      return res.status(404).json({ message: `No theaters found in ${city}` });
+      res.status(404).json({ message: `No theaters found in ${city}` });
+      return;
     }
   }
 
@@ -66,7 +68,8 @@ export const handleMovieById = async (
       .filter((c) => c.days.length > 0);
 
     if (filteredCities.length === 0) {
-      return res.status(404).json({ message: `No shows available on ${day}` });
+      res.status(404).json({ message: `No shows available on ${day}` });
+      return;
     }
   }
 
@@ -86,9 +89,8 @@ export const handleMovieById = async (
       .filter((c) => c.days.length > 0);
 
     if (filteredCities.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No Theaters available for this chain" });
+      res.status(404).json({ message: "No Theaters available for this chain" });
+      return;
     }
   }
 
@@ -108,9 +110,10 @@ export const handleMovieById = async (
       .filter((c) => c.days.length > 0);
 
     if (filteredCities.length === 0) {
-      return res
+      res
         .status(404)
         .json({ message: `No theaters matching "${theater}" found` });
+      return;
     }
   }
 
@@ -136,11 +139,12 @@ export const handleMovieById = async (
       .filter((c) => c.days.length > 0);
 
     if (filteredCities.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         message: `No shows available for screen type "${screenType}"`,
       });
+      return;
     }
   }
 
-  return res.json({ ...movieDataById, cities: filteredCities });
+  res.json({ ...movieDataById, cities: filteredCities });
 };

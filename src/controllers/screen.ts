@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
-import { AppSourcedata } from "../config/database";
-import { Screen, ShowTime } from "../models/movie";
 import { Seat } from "../models/seat";
+import { showTimeRepositry } from "../utils/service";
 export const selecteScreen = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
-    const SelectedScreen = await AppSourcedata.getRepository(ShowTime).findOne({
+    const SelectedScreen = await showTimeRepositry.findOne({
       where: { id: req.params.id },
       relations: ["seats"],
     });
 
     if (!SelectedScreen) {
-      return res.status(404).json({ message: "Screen not found" });
+      res.status(404).json({ message: "Screen not found" });
+      return;
     }
 
     SelectedScreen?.seats.sort((a: Seat, b: Seat) => {
@@ -28,8 +28,8 @@ export const selecteScreen = async (
 
       return numA - numB;
     });
-    return res.json(SelectedScreen);
+    res.json(SelectedScreen);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };

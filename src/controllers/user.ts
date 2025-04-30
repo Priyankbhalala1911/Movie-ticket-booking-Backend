@@ -1,22 +1,21 @@
 import { Request, Response } from "express";
-import { AppSourcedata } from "../config/database";
 import { User } from "../models/user";
 import { validate } from "class-validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-const UserRepositry = AppSourcedata.getRepository(User);
+import { userRepositry } from "../utils/service";
 
 export const handleRegistration = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
     const { name, email, password } = req.body;
 
-    const userFound = await UserRepositry.findOne({ where: { email } });
+    const userFound = await userRepositry.findOne({ where: { email } });
     if (userFound) {
-      return res.status(400).json({ message: "User already exists" });
+      res.status(400).json({ message: "User already exists" });
+      return;
     }
 
     const user: User = new User();
@@ -26,46 +25,48 @@ export const handleRegistration = async (
 
     const errors = await validate(user);
     if (errors.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Validation failed",
         errors: errors.map((err) => ({
           field: err.property,
           message: Object.values(err.constraints!)[0],
         })),
       });
+      return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
 
-    const result = await UserRepositry.save(user);
-    return res.status(201).json({ message: "Registration Successful", result });
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+    const result = await userRepositry.save(user);
+    res.status(201).json({ message: "Registration Successful", result });
+  } catch (error) {
+    res.status(500).json({ error: error });
   }
 };
 
 export const handleLogin = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
+      res.status(400).json({ message: "Email and password are required" });
+      return;
     }
 
-    const userFound = await UserRepositry.findOne({ where: { email } });
+    const userFound = await userRepositry.findOne({ where: { email } });
     if (!userFound) {
-      return res.status(401).json({ message: "Invalid Credentials" });
+      res.status(401).json({ message: "Invalid Credentials" });
+      return;
     }
 
     const isPasswordValid = await bcrypt.compare(password, userFound.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      res.status(401).json({ message: "Invalid email or password" });
+      return;
     }
 
     const token = jwt.sign(
@@ -76,7 +77,7 @@ export const handleLogin = async (
       }
     );
 
-    return res
+    res
       .cookie("token", token, {
         httpOnly: true,
         secure: true,
@@ -85,34 +86,37 @@ export const handleLogin = async (
         maxAge: 24 * 60 * 60 * 1000,
       })
       .json({ message: "Login Successfully", name: userFound.profile_image });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err) {
+    res.status(500).json({ error: err });
   }
 };
 
 export const handlegetUser = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
     const token = req.cookies.token;
-    if (!token) return res.status(401).json({ error: "Unauthorized" });
+    if (!token) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
       id: string;
       name: string;
     };
-    return res.json(decoded.name);
+    res.json(decoded.name);
   } catch (error) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
   }
 };
 
 export const handleLogout = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   res.clearCookie("token");
 
-  return res.json({ message: "Logged out successfully" });
+  res.json({ message: "Logged out successfully" });
 };

@@ -12,11 +12,13 @@ export const UserAuth = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): Promise<any> => {
+): Promise<void> => {
   try {
     const token = req.cookies.token;
-    console.log("token:   ", token);
-    if (!token) return res.status(401).json({ error: "user Unauthorized" });
+    if (!token) {
+      res.status(401).json({ error: "user Unauthorized" });
+      return;
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
       id: string;
@@ -26,10 +28,13 @@ export const UserAuth = async (
     const user = await AppSourcedata.getRepository(User).findOne({
       where: { id: decoded.id },
     });
-    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    if (!user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
     req.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
   }
 };

@@ -2,17 +2,29 @@ import { Request, Response } from "express";
 import { RazorPatInstance } from "../lib/razorpayInstance";
 import crypto from "crypto";
 import { SeatBooking } from "../models/seatBooking";
-import { AppSourcedata } from "../config/database";
-import { Movie } from "../models/movie";
-import { Seat } from "../models/seat";
+import {
+  movieRepositry,
+  seatBookingTimeRepositry,
+  seatRepositry,
+  userRepositry,
+} from "../utils/service";
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 
 export const PaymentOrder = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   const { amount } = req.body;
-  const userId = (req as any).user?.id;
-  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+  const userId = req.user?.id;
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
   try {
     const razorpayInstane = RazorPatInstance();
     const option = {
@@ -21,12 +33,14 @@ export const PaymentOrder = async (
       receipt: `receipt_order_${Date.now()}`,
     };
 
-    razorpayInstane.orders.create(option, (err, order) => {
+    await razorpayInstane.orders.create(option, (err, order) => {
       if (err) {
-        console.log(err);
+        console.error("Razorpay order creation failed:", err);
         res.status(500).json({ message: "soemthing went wrong" });
+        return;
       }
       res.status(200).json({ data: order });
+      return;
     });
   } catch (err) {
     console.log(err);
@@ -35,9 +49,9 @@ export const PaymentOrder = async (
 };
 
 export const PaymentVerify = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
     const {
       razorpay_order_id,
@@ -55,25 +69,31 @@ export const PaymentVerify = async (
     const isAuthenticated = expeactedSign === razorpay_signature;
 
     if (isAuthenticated) {
-      const userId = (req as any).user?.id;
-      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
 
-      const movie = await AppSourcedata.getRepository(Movie).findOne({
+      const movie = await movieRepositry.findOne({
         where: { movie_id: selectedMovie.movie_id },
       });
 
       if (!movie) {
-        return res.status(404).json({ message: "Movie not found" });
+        res.status(404).json({ message: "Movie not found" });
+        return;
       }
 
-      selectedMovie.seat_number.map(async (seat: any) => {
-        await AppSourcedata.getRepository(Seat).update(seat.id, {
-          status: "confirmed",
-        });
-      });
+      selectedMovie.seat_number.map(
+        async (seat: { id: string; seat_number: string[] }) => {
+          await seatRepositry.update(seat.id, {
+            status: "confirmed",
+          });
+        }
+      );
 
       const selectedSeat = selectedMovie.seat_number.map(
-        (seat: any) => seat.seat_number
+        (seat: { id: string; seat_number: string[] }) => seat.seat_number
       );
 
       const seatbooking = new SeatBooking();
@@ -90,9 +110,14 @@ export const PaymentVerify = async (
       seatbooking.seat_number = selectedSeat;
       seatbooking.total_amount = selectedMovie.total_amount;
       seatbooking.payment_status = isAuthenticated;
-      seatbooking.user = { id: userId } as any;
+      const user = await userRepositry.findOne({ where: { id: userId } });
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+      seatbooking.user = user;
 
-      await AppSourcedata.getRepository(SeatBooking).save(seatbooking);
+      await seatBookingTimeRepositry.save(seatbooking);
       res
         .status(200)
         .json({ message: "Seat booked successfully", id: seatbooking.id });

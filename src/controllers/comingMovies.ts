@@ -1,18 +1,20 @@
 import { Request, Response } from "express";
-import { AppSourcedata } from "../config/database";
-import { ComingMovies } from "../models/comingMovies";
+import { comingMoviesRepositry } from "../utils/service";
 
 export const handleComingMovie = async (
   req: Request,
   res: Response
-): Promise<any> => {
+): Promise<void> => {
   try {
-    const data = await AppSourcedata.getRepository(ComingMovies).find();
-    if (!data)
-      return res.status(401).json({ message: "Upcoming movie not found" });
+    const data = await comingMoviesRepositry.find();
+    if (!data) {
+      res.status(401).json({ message: "Upcoming movie not found" });
+      return;
+    }
 
-    return res.status(200).json(data);
+    res.status(200).json(data);
   } catch (err) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
+    return;
   }
 };
