@@ -5,7 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { ShowTime } from "./movie";
+import { ShowTime } from "./showTime";
 
 @Entity()
 export class Seat {
@@ -21,6 +21,6 @@ export class Seat {
   @Column({ default: "availabel" })
   status!: "availabel" | "confirmed";
 
-  @ManyToOne(() => ShowTime, (time) => time.seats, { onDelete: "CASCADE" })
+  @ManyToOne(() => ShowTime, (time) => time, { onDelete: "CASCADE" })
   showTime!: ShowTime;
 }
