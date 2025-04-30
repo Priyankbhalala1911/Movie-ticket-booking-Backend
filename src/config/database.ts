@@ -2,13 +2,18 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "../models/user";
 import "dotenv/config";
-import { City, Day, Movie, Screen, ShowTime, Theatre } from "../models/movie";
-// import { AddDStaticData } from "../utils/Addedmovie/AddMovie";
-import { MovieNews } from "../models/movieNews";
-// import { AddMovieNews } from "../utils/Addedmovie/AddMovieNews";
 import { Seat } from "../models/seat";
+import { MovieNews } from "../models/movieNews";
 import { SeatBooking } from "../models/seatBooking";
 import { ComingMovies } from "../models/comingMovies";
+import { Movie } from "../models/movie";
+import { City } from "../models/city";
+import { Theatre } from "../models/theater";
+import { Day } from "../models/day";
+import { ShowTime } from "../models/showTime";
+import { Screen } from "../models/screen";
+// import { AddMovieNews } from "../utils/Addedmovie/AddMovieNews";
+// import { AddDStaticData } from "../utils/Addedmovie/AddMovie";
 // import { AddComingMovies } from "../utils/Addedmovie/ComingMovies";
 
 export const AppSourcedata = new DataSource({
