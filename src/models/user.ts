@@ -34,7 +34,7 @@ export class User {
   password!: string;
 
   @Column({ default: null })
-  profile_image!: string;
+  profileImage!: string;
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
