@@ -19,7 +19,7 @@ import { Screen } from "../models/screen";
 export const AppSourcedata = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL,
-  synchronize: true,
+  synchronize: false,
   logging: false,
   entities: [
     User,
@@ -34,9 +34,10 @@ export const AppSourcedata = new DataSource({
     SeatBooking,
     ComingMovies,
   ],
+  migrations: ["src/migrations/*.ts"],
   schema: "public",
   ssl: {
-    rejectUnauthorized: false,
+    rejectUnauthorized: true,
   },
 });
 
