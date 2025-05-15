@@ -30,7 +30,7 @@ export const uploadImage = async (
       return;
     }
 
-    await userRepositry.update({ id: userId }, { profile_image: imageurl });
+    await userRepositry.update({ id: userId }, { profileImage: imageurl });
 
     res.status(200).json({ message: "Upload Profile Picture", imageurl });
   } catch (err) {
